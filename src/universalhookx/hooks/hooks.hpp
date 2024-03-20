@@ -2,7 +2,7 @@
 #include <Windows.h>
 
 namespace Hooks {
-	void Init( );
+	void Init(HWND targetWindow);
 	void Free( );
 
 	inline bool bShuttingDown;

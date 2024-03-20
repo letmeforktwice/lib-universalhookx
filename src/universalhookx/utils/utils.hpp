@@ -18,7 +18,6 @@ namespace Utils {
 	const char* RenderingBackendToStr( );
 
 	HWND GetProcessWindow( );
-	void UnloadDLL( );
 	
 	HMODULE GetCurrentImageBase( );
 

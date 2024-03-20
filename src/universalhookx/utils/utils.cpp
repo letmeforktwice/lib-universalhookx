@@ -9,8 +9,6 @@
 
 #include "../console/console.hpp"
 
-#define RB2STR(x) case x: return #x
-
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
 static RenderingBackend_t g_eRenderingBackend = NONE;
@@ -49,12 +47,14 @@ namespace Utils {
 		RenderingBackend_t eRenderingBackend = GetRenderingBackend( );
 
 		switch (eRenderingBackend) {
+			#define RB2STR(x) case x: return #x
 			RB2STR(DIRECTX9);
 			RB2STR(DIRECTX10);
 			RB2STR(DIRECTX11);
 			RB2STR(DIRECTX12);
 			RB2STR(OPENGL);
 			RB2STR(VULKAN);
+			#undef RB2STR
 		}
 
 		return "NONE/UNKNOWN";
@@ -77,11 +77,6 @@ namespace Utils {
 		return hwnd;
 	}
 
-	void UnloadDLL( ) {
-		HANDLE hThread = CreateThread(NULL, 0, _UnloadDLL, NULL, 0, NULL);
-		if (hThread != NULL) CloseHandle(hThread);
-	}
-
 	HMODULE GetCurrentImageBase( ) {
 		return (HINSTANCE)(&__ImageBase);
 	}
@@ -100,6 +95,8 @@ namespace Utils {
 		std::filesystem::path currentImagePath(currentImagePathC);
 		std::string currentImageName = currentImagePath.filename().string();
 
+		// LOG("[+] Current image name: %s\n", currentImageName.c_str());
+
 		HMODULE modules[1024];
 		DWORD needed;
 		if (!EnumProcessModules(GetCurrentProcess(), modules, sizeof(modules), &needed)) {
@@ -113,13 +110,15 @@ namespace Utils {
 		};
 
 		BackendInfo backendInfos[] = {
-			{ DIRECTX12, "d3d12.dll" },
+			{ DIRECTX12, "d3d12.dll" }, // Max priority
+			{ DIRECTX10, "d3d10.dll" },
 			{ VULKAN, "vulkan-1.dll" },
 			{ DIRECTX11, "d3d11.dll" },
 			{ OPENGL, "opengl32.dll" },
-			{ DIRECTX9, "d3d9.dll" },
+			{ DIRECTX9, "d3d9.dll" },   // Min priority
 		};
 
+		// Check each backend from highest to lowest priority.
 		for (auto& backendInfo : backendInfos) {
 			for (size_t i = 0; i < (needed / sizeof(HMODULE)); i++) {
 				char moduleNameC[MAX_PATH];
@@ -127,11 +126,11 @@ namespace Utils {
 					std::string moduleName(moduleNameC);
 
 					// Everything after this was loaded by us (or some other dll injected after us).
-					if (moduleName.find(currentImagePathC) != std::string::npos)
+					if (moduleName.find(currentImageName) != std::string::npos)
 						break;
 
-					if (moduleName.find(currentImageName) != std::string::npos) {
-						LOG("[+] Detected %s backend.\n", backendInfo.moduleName);
+					if (moduleName.find(backendInfo.moduleName) != std::string::npos) {
+						// LOG("[+] Detected %s backend.\n", backendInfo.moduleName.c_str());
 						return backendInfo.backend;
 					}
 				}
