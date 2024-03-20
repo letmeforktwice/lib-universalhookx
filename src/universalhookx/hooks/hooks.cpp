@@ -61,6 +61,19 @@ void _setCursorDisplayCount(int count) {
     }
 }
 
+void stupidInputFix(HWND hWnd) {
+    // Some games really want to hold onto input focus, preventing any other window from being interacted with.
+    // The gearbox port of halo CE is one example.
+    // This is a hacky way to fix that.
+    
+    // auto anyOtherWindow = GetNextWindow(hWnd, GW_HWNDNEXT);
+    // if (anyOtherWindow == NULL)
+    //     anyOtherWindow = GetNextWindow(hWnd, GW_HWNDPREV);
+
+    auto anyOtherWindow = GetConsoleWindow();
+    SetForegroundWindow(anyOtherWindow);
+    SetForegroundWindow(hWnd);
+}
 
 static WNDPROC oWndProc;
 static LRESULT WINAPI WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
@@ -74,11 +87,7 @@ static LRESULT WINAPI WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
             if (Menu::bShowMenu) {
                 gameCursorDisplayCount = _getCursorDisplayCount();
                 _setCursorDisplayCount(0);
-
-                // Unfocus window and then refocus to fix input issues
-                SetForegroundWindow(NULL);
-                SetForegroundWindow(hWnd);
-                SetFocus(hWnd);
+                stupidInputFix(hWnd);
             } else {
                 _setCursorDisplayCount(gameCursorDisplayCount);
             }
@@ -107,9 +116,43 @@ static LRESULT WINAPI WndProc(const HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM 
         // return ImGui_ImplWin32_WndProcHandler(hWnd, uMsg, wParam, lParam) == 0;
     }
 
+    bool callOriginal = true;
+
+    LRESULT result = NULL;
+
+    LRESULT ImGui_ImplWin32_WndProcHandler( HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam );
+    if ( Menu::bShowMenu ) {
+
+            switch (uMsg) {
+                case WM_MOUSEMOVE:
+                case WM_MOUSEHOVER:
+                case WM_MOUSEWHEEL:
+                case WM_LBUTTONDOWN:
+                case WM_LBUTTONUP:
+                case WM_MBUTTONDOWN:
+                case WM_MBUTTONUP:
+                case WM_RBUTTONDOWN:
+                case WM_RBUTTONUP:
+                case WM_KEYDOWN:
+                    callOriginal = false;
+                    break;
+                default:
+                    break;
+            }
+
+        // SetCursor(LoadCursor(NULL, IDC_ARROW));
+
+        result = ImGui_ImplWin32_WndProcHandler( hWnd, uMsg, wParam, lParam );
+
+    } else {
+    }
+
     Mouse::enableApis = false;
 
-    return CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
+    if (callOriginal)
+        result = CallWindowProc(oWndProc, hWnd, uMsg, wParam, lParam);
+
+    return result;
 }
 
 namespace Hooks {

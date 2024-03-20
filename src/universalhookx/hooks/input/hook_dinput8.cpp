@@ -12,6 +12,9 @@
 #pragma comment(lib, "dinput8.lib")
 #pragma comment(lib, "dxguid.lib")
 
+#define ENABLE_D8_MOUSE_HOOK
+#define ENABLE_D8_KEYBOARD_HOOK
+
 IDirectInput8* createDirectInput8( ) {
 	HINSTANCE hinst = GetModuleHandle(NULL);
     IDirectInput8* pDirectInput;
@@ -48,8 +51,9 @@ HRESULT WINAPI hkGetDeviceState_mouse(IDirectInputDevice8* device, DWORD cbData,
 
 static std::add_pointer_t<HRESULT WINAPI(IDirectInputDevice8* device, DWORD cbData, LPVOID lpvData)> oGetDeviceState_keyboard;
 HRESULT WINAPI hkGetDeviceState_keyboard(IDirectInputDevice8* device, DWORD cbData, LPVOID lpvData) {
-	LOG("[+] Hello from keyboard hook!\n");
+	// LOG("[+] Hello from keyboard hook!\n");
     if (Menu::bShowMenu) {
+		memset(lpvData, 0, cbData);
 		return S_OK;
     } else {
 		return oGetDeviceState_keyboard(device, cbData, lpvData);
@@ -72,18 +76,27 @@ namespace DI8 {
 
 		void* functionToHook = vtable[vtableIndex];
 
-		LOG("[+] Original function: %llX\n", reinterpret_cast<UINT_PTR>(functionToHook));
+		#ifdef _WIN64
+			LOG("[+] Original function: %llX\n", reinterpret_cast<UINT_PTR>(functionToHook));
+		#else
+			LOG("[+] Original function: %X\n", reinterpret_cast<UINT_PTR>(functionToHook));
+		#endif
 
-		static MH_STATUS hookStatus = MH_CreateHook(
+		MH_STATUS hookStatus = MH_CreateHook(
 			reinterpret_cast<void**>(functionToHook), 
 			pDetour, ppOriginal
 		);
 
-		LOG("[+] Hook status: %llu\n", hookStatus);
+		LOG("[+] Hook status: %u\n", hookStatus);
+
+		if (hookStatus != MH_OK) {
+			LOG("[!] Failed to create hook!\n");
+			return;
+		}
 
 		hookStatus = MH_EnableHook(functionToHook);
 
-		LOG("[+] Hook status: %llu\n", hookStatus);
+		LOG("[+] Hook status: %u\n", hookStatus);
 
 	}
 
@@ -93,6 +106,7 @@ namespace DI8 {
         if (dinput) {
             LOG("[+] Created DirectInput8.\n");
 
+#ifdef ENABLE_D8_MOUSE_HOOK
             auto mouse = createDevice(GUID_SysMouse, dinput);
             if (mouse) {
 				LOG("[+] Hooking mouse.\n");
@@ -104,14 +118,9 @@ namespace DI8 {
 				);
 				mouse->Release( );
             }
+#endif
 
 #ifdef ENABLE_D8_KEYBOARD_HOOK
-			// We're not using this for now. MinHook is shitting the bed when using both these hooks.
-			// Maybe we should mimick the usage pattern in DX9 hook closer:
-			//   1. Pull function pointers out of the device.
-			//   2. Release the device. 
-			//   3. Create the hooks.
-			//   4. Enable the hooks.
 			auto keyboard = createDevice(GUID_SysKeyboard, dinput);
             if (keyboard) {
 				LOG("[+] Hooking keyboard.\n");
