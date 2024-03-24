@@ -1,5 +1,5 @@
 #include "../../../backend.hpp"
-#include "../../../console/console.hpp"
+#include "../../../console.hpp"
 
 #ifdef ENABLE_BACKEND_DX11
 #include <Windows.h>
@@ -18,10 +18,11 @@
 #include "imgui_impl_win32.h"
 #include "MinHook.h"
 
-#include "../../../utils/utils.hpp"
+#include "../../../utils.hpp"
 #include "../../hooks.hpp"
+#include "../../../universalhookx.hpp"
 
-#include "../../../menu/menu.hpp"
+
 
 static ID3D11Device* g_pd3dDevice = NULL;
 static ID3D11DeviceContext* g_pd3dDeviceContext = NULL;
@@ -63,7 +64,7 @@ static void CreateRenderTarget(IDXGISwapChain* pSwapChain) {
         pSwapChain->GetDesc(&sd);
 
         D3D11_RENDER_TARGET_VIEW_DESC desc = { };
-        desc.Format = static_cast<DXGI_FORMAT>(Utils::GetCorrectDXGIFormat(sd.BufferDesc.Format));
+        desc.Format = static_cast<DXGI_FORMAT>(UniversalHookX::Utils::GetCorrectDXGIFormat(sd.BufferDesc.Format));
         desc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 
         g_pd3dDevice->CreateRenderTargetView(pBackBuffer, &desc, &g_pd3dRenderTarget);
@@ -173,7 +174,7 @@ namespace DX11 {
         LOG("[+] DirectX11: g_pSwapChain: 0x%p\n", g_pSwapChain);
 
         if (g_pd3dDevice) {
-            Menu::InitializeContext(hwnd);
+            UniversalHookX::Hooks::InitializeContext(hwnd);
 
             // Hook
             IDXGIDevice* pDXGIDevice = NULL;
@@ -288,12 +289,11 @@ static void RenderImGui_DX11(IDXGISwapChain* pSwapChain) {
 
         if (ImGui::GetCurrentContext( ) && g_pd3dRenderTarget) {
             ImGui_ImplDX11_NewFrame( );
-            ImGui_ImplWin32_NewFrame( );
-            ImGui::NewFrame( );
 
-            Menu::Render( );
-
-            ImGui::Render( );
+            // ImGui_ImplWin32_NewFrame( );
+            // ImGui::NewFrame( );
+            UniversalHookX::CallRenderCallback();
+            // ImGui::Render( );
 
             g_pd3dDeviceContext->OMSetRenderTargets(1, &g_pd3dRenderTarget, NULL);
             ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData( ));

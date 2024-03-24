@@ -1,4 +1,4 @@
-namespace DI8 {
-    void Hook( );
-    void Unhook( );
-}
+// namespace DI8 {
+//     void Hook( );
+//     void Unhook( );
+// }

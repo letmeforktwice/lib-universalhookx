@@ -1,5 +1,5 @@
 #include "../../../backend.hpp"
-#include "../../../console/console.hpp"
+#include "../../../console.hpp"
 
 #ifdef ENABLE_BACKEND_OPENGL
 #include <Windows.h>
@@ -13,8 +13,9 @@
 #include "MinHook.h"
 
 #include "../../hooks.hpp"
+#include "../../../universalhookx.hpp"
 
-#include "../../../menu/menu.hpp"
+
 
 static std::add_pointer_t<BOOL WINAPI(HDC)> oWglSwapBuffers;
 static BOOL WINAPI hkWglSwapBuffers(HDC Hdc) {
@@ -23,10 +24,11 @@ static BOOL WINAPI hkWglSwapBuffers(HDC Hdc) {
             ImGui_ImplOpenGL3_Init( );
 
         ImGui_ImplOpenGL3_NewFrame( );
-        ImGui_ImplWin32_NewFrame( );
-        ImGui::NewFrame( );
-
-        Menu::Render( );
+        
+        // ImGui_ImplWin32_NewFrame( );
+        // ImGui::NewFrame( );
+        UniversalHookX::CallRenderCallback();
+        // ImGui::EndFrame( );
 
         ImGui::Render( );
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData( ));
@@ -43,7 +45,7 @@ namespace GL {
 
             void* fnWglSwapBuffers = reinterpret_cast<void*>(GetProcAddress(openGL32, "wglSwapBuffers"));
             if (fnWglSwapBuffers) {
-                Menu::InitializeContext(hwnd);
+                UniversalHookX::Hooks::InitializeContext(hwnd);
 
                 // Hook
                 LOG("[+] OpenGL32: fnWglSwapBuffers: 0x%p\n", fnWglSwapBuffers);

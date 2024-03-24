@@ -7,11 +7,11 @@
 
 #include "utils.hpp"
 
-#include "../console/console.hpp"
+#include "console.hpp"
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
-static RenderingBackend_t g_eRenderingBackend = NONE;
+static UniversalHookX::RenderingBackend_t g_eRenderingBackend = UniversalHookX::NONE;
 
 static BOOL CALLBACK EnumWindowsCallback(HWND handle, LPARAM lParam) {
 	const auto isMainWindow = [ handle ]( ) {
@@ -29,12 +29,12 @@ static BOOL CALLBACK EnumWindowsCallback(HWND handle, LPARAM lParam) {
 	return FALSE;
 }
 
-static DWORD WINAPI _UnloadDLL(LPVOID lpParam) {
-	FreeLibraryAndExitThread(Utils::GetCurrentImageBase( ), 0);
-	return 0;
-}
+namespace UniversalHookX::Utils {
+	
+	HMODULE GetCurrentImageBase( ) {
+		return (HINSTANCE)(&__ImageBase);
+	}
 
-namespace Utils {
 	void SetRenderingBackend(RenderingBackend_t eRenderingBackground) {
 		g_eRenderingBackend = eRenderingBackground;
 	}
@@ -58,27 +58,6 @@ namespace Utils {
 		}
 
 		return "NONE/UNKNOWN";
-	}
-
-	HWND GetProcessWindow( ) {
-		HWND hwnd = nullptr;
-		EnumWindows(::EnumWindowsCallback, reinterpret_cast<LPARAM>(&hwnd));
-
-		while (!hwnd) {
-			EnumWindows(::EnumWindowsCallback, reinterpret_cast<LPARAM>(&hwnd));
-			LOG("[!] Waiting for window to appear.\n");
-			std::this_thread::sleep_for(std::chrono::milliseconds(200));
-		}
-
-		char name[128];
-		GetWindowTextA(hwnd, name, RTL_NUMBER_OF(name));
-		LOG("[+] Got window with name: '%s'\n", name);
-
-		return hwnd;
-	}
-
-	HMODULE GetCurrentImageBase( ) {
-		return (HINSTANCE)(&__ImageBase);
 	}
 
 	int GetCorrectDXGIFormat(int eCurrentFormat) {

@@ -1,6 +1,6 @@
-namespace Mouse {
-    void Hook( );
-    void Unhook( );
+// namespace Mouse {
+//     void Hook( );
+//     void Unhook( );
 
-    inline bool enableApis = true;
-}
+//     inline bool enableApis = true;
+// }

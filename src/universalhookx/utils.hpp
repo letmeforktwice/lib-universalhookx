@@ -1,29 +1,27 @@
 #pragma once
 
-enum RenderingBackend_t {
-	NONE = 0,
+#include "universalhookx.hpp"
 
-	DIRECTX9,
-	DIRECTX10,
-	DIRECTX11,
-	DIRECTX12,
+// enum RenderingBackend_t {
+// 	NONE = 0,
 
-	OPENGL,
-	VULKAN,
-};
+// 	DIRECTX9,
+// 	DIRECTX10,
+// 	DIRECTX11,
+// 	DIRECTX12,
 
-namespace Utils {
+// 	OPENGL,
+// 	VULKAN,
+// };
+
+namespace UniversalHookX::Utils {
 	void SetRenderingBackend(RenderingBackend_t eRenderingBackend);
 	RenderingBackend_t GetRenderingBackend( );
 	const char* RenderingBackendToStr( );
-
-	HWND GetProcessWindow( );
 	
-	HMODULE GetCurrentImageBase( );
-
 	int GetCorrectDXGIFormat(int eCurrentFormat);
 
 	RenderingBackend_t GuessBackend();
 }
 
-namespace U = Utils;
+namespace U = UniversalHookX::Utils;

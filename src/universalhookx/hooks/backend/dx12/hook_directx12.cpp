@@ -1,5 +1,5 @@
 #include "../../../backend.hpp"
-#include "../../../console/console.hpp"
+#include "../../../console.hpp"
 
 #ifdef ENABLE_BACKEND_DX12
 #include <Windows.h>
@@ -18,10 +18,11 @@
 #include "imgui_impl_win32.h"
 #include "MinHook.h"
 
-#include "../../../utils/utils.hpp"
+#include "../../../utils.hpp"
 #include "../../hooks.hpp"
+#include "../../../universalhookx.hpp"
 
-#include "../../../menu/menu.hpp"
+
 
 // Data
 static int const NUM_BACK_BUFFERS = 3;
@@ -204,7 +205,7 @@ namespace DX12 {
         LOG("[+] DirectX12: g_pSwapChain: 0x%p\n", g_pSwapChain);
 
         if (g_pd3dDevice) {
-            Menu::InitializeContext(hwnd);
+            UniversalHookX::Hooks::InitializeContext(hwnd);
 
             // Hook
             void** pVTable = *reinterpret_cast<void***>(g_pSwapChain);
@@ -366,12 +367,11 @@ static void RenderImGui_DX12(IDXGISwapChain3* pSwapChain) {
 
         if (ImGui::GetCurrentContext( ) && g_pd3dCommandQueue && g_mainRenderTargetResource[0]) {
             ImGui_ImplDX12_NewFrame( );
-            ImGui_ImplWin32_NewFrame( );
-            ImGui::NewFrame( );
 
-            Menu::Render( );
-
-            ImGui::Render( );
+            // ImGui_ImplWin32_NewFrame( );
+            // ImGui::NewFrame( );
+            UniversalHookX::CallRenderCallback();
+            // ImGui::Render( );
 
             UINT backBufferIdx = pSwapChain->GetCurrentBackBufferIndex( );
             ID3D12CommandAllocator* commandAllocator = g_commandAllocators[backBufferIdx];

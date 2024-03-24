@@ -1,5 +1,5 @@
 #include "../../../backend.hpp"
-#include "../../../console/console.hpp"
+#include "../../../console.hpp"
 
 #ifdef ENABLE_BACKEND_VULKAN
 #include <Windows.h>
@@ -18,8 +18,9 @@
 #include "MinHook.h"
 
 #include "../../hooks.hpp"
+#include "../../../universalhookx.hpp"
 
-#include "../../../menu/menu.hpp"
+
 
 static VkAllocationCallbacks* g_Allocator = NULL;
 static VkInstance g_Instance = VK_NULL_HANDLE;
@@ -422,7 +423,7 @@ static void RenderImGui_Vulkan(VkQueue queue, const VkPresentInfoKHR* pPresentIn
     VkQueue graphicQueue = VK_NULL_HANDLE;
     const bool queueSupportsGraphic = DoesQueueSupportGraphic(queue, &graphicQueue);
 
-    Menu::InitializeContext(g_Hwnd);
+    UniversalHookX::Hooks::InitializeContext(g_Hwnd);
 
     for (uint32_t i = 0; i < pPresentInfo->swapchainCount; ++i) {
         VkSwapchainKHR swapchain = pPresentInfo->pSwapchains[i];
@@ -475,16 +476,18 @@ static void RenderImGui_Vulkan(VkQueue queue, const VkPresentInfoKHR* pPresentIn
             init_info.ImageCount = g_MinImageCount;
             init_info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
             init_info.Allocator = g_Allocator;
-            ImGui_ImplVulkan_Init(&init_info, g_RenderPass);
+            init_info.RenderPass = g_RenderPass;
+            ImGui_ImplVulkan_Init(&init_info);//, g_RenderPass);
 
-            ImGui_ImplVulkan_CreateFontsTexture(fd->CommandBuffer);
+            ImGui_ImplVulkan_CreateFontsTexture();//fd->CommandBuffer);
         }
 
         ImGui_ImplVulkan_NewFrame( );
-        ImGui_ImplWin32_NewFrame( );
-        ImGui::NewFrame( );
-
-        Menu::Render( );
+        
+        // ImGui_ImplWin32_NewFrame( );
+        // ImGui::NewFrame( );
+        UniversalHookX::CallRenderCallback();
+        // ImGui::EndFrame( );
 
         ImGui::Render( );
 

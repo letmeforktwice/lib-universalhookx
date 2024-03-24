@@ -1,5 +1,5 @@
 #include "../../../backend.hpp"
-#include "../../../console/console.hpp"
+#include "../../../console.hpp"
 
 #ifdef ENABLE_BACKEND_DX9
 #include <Windows.h>
@@ -16,8 +16,9 @@
 #include "MinHook.h"
 
 #include "../../hooks.hpp"
+#include "../../../universalhookx.hpp"
 
-#include "../../../menu/menu.hpp"
+
 
 static LPDIRECT3D9 g_pD3D = NULL;
 static LPDIRECT3DDEVICE9 g_pd3dDevice = NULL;
@@ -96,7 +97,7 @@ namespace DX9 {
         LOG("[+] DirectX9: g_pd3dDevice: 0x%p\n", g_pd3dDevice);
 
         if (g_pd3dDevice) {
-            Menu::InitializeContext(hwnd);
+            UniversalHookX::Hooks::InitializeContext(hwnd);
 
             // Hook
             void** pVTable = *reinterpret_cast<void***>(g_pd3dDevice);
@@ -159,12 +160,12 @@ static void RenderImGui_DX9(IDirect3DDevice9* pDevice) {
         pDevice->SetRenderState(D3DRS_SRGBWRITEENABLE, false);
 
         ImGui_ImplDX9_NewFrame( );
-        ImGui_ImplWin32_NewFrame( );
-        ImGui::NewFrame( );
 
-        Menu::Render( );
-
-        ImGui::EndFrame( );
+        // ImGui_ImplWin32_NewFrame( );
+        // ImGui::NewFrame( );
+        UniversalHookX::CallRenderCallback();
+        // ImGui::EndFrame( );
+        
         if (pDevice->BeginScene( ) == D3D_OK) {
             ImGui::Render( );
             ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData( ));

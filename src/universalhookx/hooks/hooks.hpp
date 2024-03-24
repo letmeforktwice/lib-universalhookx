@@ -1,11 +1,14 @@
 #pragma once
 #include <Windows.h>
 
-namespace Hooks {
+namespace UniversalHookX::Hooks {
+
+	void InitializeContext(HWND targetWindow);
+
 	void Init(HWND targetWindow);
 	void Free( );
 
 	inline bool bShuttingDown;
 }
 
-namespace H = Hooks;
+namespace H = UniversalHookX::Hooks;
