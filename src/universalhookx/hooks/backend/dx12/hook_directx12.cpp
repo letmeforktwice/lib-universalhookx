@@ -371,8 +371,8 @@ static void RenderImGui_DX12(IDXGISwapChain3* pSwapChain) {
             // ImGui_ImplWin32_NewFrame( );
             // ImGui::NewFrame( );
             UniversalHookX::CallRenderCallback();
-            // ImGui::Render( );
-
+            
+            ImGui::Render( );
             UINT backBufferIdx = pSwapChain->GetCurrentBackBufferIndex( );
             ID3D12CommandAllocator* commandAllocator = g_commandAllocators[backBufferIdx];
             commandAllocator->Reset( );

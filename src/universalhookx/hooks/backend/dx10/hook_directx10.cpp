@@ -283,8 +283,8 @@ static void RenderImGui_DX10(IDXGISwapChain* pSwapChain) {
             // ImGui_ImplWin32_NewFrame( );
             // ImGui::NewFrame( );
             UniversalHookX::CallRenderCallback();
-            // ImGui::Render( );
 
+            ImGui::Render( );
             g_pd3dDevice->OMSetRenderTargets(1, &g_pd3dRenderTarget, NULL);
             ImGui_ImplDX10_RenderDrawData(ImGui::GetDrawData( ));
         }
