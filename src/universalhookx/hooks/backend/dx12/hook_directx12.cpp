@@ -81,7 +81,7 @@ static void CreateRenderTarget(IDXGISwapChain* pSwapChain) {
             pSwapChain->GetDesc(&sd);
 
             D3D12_RENDER_TARGET_VIEW_DESC desc = { };
-            desc.Format = static_cast<DXGI_FORMAT>(Utils::GetCorrectDXGIFormat(sd.BufferDesc.Format));
+            desc.Format = static_cast<DXGI_FORMAT>(UniversalHookX::Utils::GetCorrectDXGIFormat(sd.BufferDesc.Format));
             desc.ViewDimension = D3D12_RTV_DIMENSION_TEXTURE2D;
 
             g_pd3dDevice->CreateRenderTargetView(pBackBuffer, &desc, g_mainRenderTargetDescriptor[i]);

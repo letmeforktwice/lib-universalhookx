@@ -9,7 +9,7 @@
 #define ENABLE_BACKEND_DX10
 #define ENABLE_BACKEND_DX11
 
-#ifndef _WIN32
+#ifdef _WIN64
     #define ENABLE_BACKEND_DX12
 #endif
 

@@ -16,6 +16,10 @@ namespace UniversalHookX {
 		VULKAN,
 	};
 
+	void SetInitializeContextCallback(void (*callback)(HWND targetWindow));
+
+	void CallInitializeContextCallback(HWND targetWindow);
+
     void SetRenderCallback(void (*callback)(void));
 
 	void CallRenderCallback();

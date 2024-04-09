@@ -32,7 +32,11 @@ namespace UniversalHookX::Hooks {
             return;
         ImGui::CreateContext();
         ImGui_ImplWin32_Init(targetWindow);
-        ImGui::StyleColorsDark();
+
+        // ImGui::StyleColorsDark();
+        // ImGui::GetIO().Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\CascadiaMono.ttf", 14.0f);
+
+        UniversalHookX::CallInitializeContextCallback(targetWindow);
     }
 
     void Init(HWND targetWindow) {

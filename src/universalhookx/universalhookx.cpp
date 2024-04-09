@@ -10,6 +10,17 @@
 namespace UniversalHookX {
 
     static void (*g_pRenderCallback)(void) = nullptr;
+    static void (*g_pInitializeContextCallback)(HWND) = nullptr;
+
+    void SetInitializeContextCallback(void (*callback)(HWND targetWindow)) {
+        g_pInitializeContextCallback = callback;
+    }
+
+    void CallInitializeContextCallback(HWND targetWindow) {
+        if (g_pInitializeContextCallback) {
+            g_pInitializeContextCallback(targetWindow);
+        }
+    }
 
     void SetRenderCallback(void (*callback)(void)) {
         g_pRenderCallback = callback;
