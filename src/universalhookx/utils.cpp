@@ -104,6 +104,9 @@ namespace UniversalHookX::Utils {
 				if (GetModuleFileNameExA(GetCurrentProcess(), modules[i], moduleNameC, MAX_PATH)) {
 					std::string moduleName(moduleNameC);
 
+					// Convert to lowercase.
+					std::transform(moduleName.begin(), moduleName.end(), moduleName.begin(), ::tolower);
+
 					// Everything after this was loaded by us (or some other dll injected after us).
 					if (moduleName.find(currentImageName) != std::string::npos)
 						break;

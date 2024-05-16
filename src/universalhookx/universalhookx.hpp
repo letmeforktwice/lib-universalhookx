@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Windows.h>
+#include <string>
 
 namespace UniversalHookX {
 
@@ -15,6 +16,8 @@ namespace UniversalHookX {
 		OPENGL,
 		VULKAN,
 	};
+
+	RenderingBackend_t ParseRenderingBackend(const std::string& backend);
 
 	void SetInitializeContextCallback(void (*callback)(HWND targetWindow));
 
