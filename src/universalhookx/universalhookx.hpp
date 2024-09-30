@@ -29,6 +29,10 @@ namespace UniversalHookX {
 
     void SetRenderingBackend(RenderingBackend_t backend);
 
+	RenderingBackend_t GetRenderingBackend();
+
+	std::string GetRenderingBackendName();
+
     void GuessRenderingBackend();
 
     void Hook(HWND targetWindow);

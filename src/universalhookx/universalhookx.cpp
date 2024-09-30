@@ -55,6 +55,14 @@ namespace UniversalHookX {
         Utils::SetRenderingBackend(backend);
     }
 
+    RenderingBackend_t GetRenderingBackend() {
+        return Utils::GetRenderingBackend();
+    }
+
+    std::string GetRenderingBackendName() {
+        return Utils::RenderingBackendToStr();
+    }
+
     void GuessRenderingBackend() {
         Utils::SetRenderingBackend(Utils::GuessBackend());
         std::cout << "Detected rendering backend: " << Utils::RenderingBackendToStr() << std::endl;

@@ -47,17 +47,17 @@ namespace UniversalHookX::Utils {
 		RenderingBackend_t eRenderingBackend = GetRenderingBackend( );
 
 		switch (eRenderingBackend) {
-			#define RB2STR(x) case x: return #x
-			RB2STR(DIRECTX9);
-			RB2STR(DIRECTX10);
-			RB2STR(DIRECTX11);
-			RB2STR(DIRECTX12);
-			RB2STR(OPENGL);
-			RB2STR(VULKAN);
-			#undef RB2STR
+			#define __CASE(X, x) case X: return #x
+			__CASE(DIRECTX9, DirectX9);
+			__CASE(DIRECTX10, DirectX10);
+			__CASE(DIRECTX11, DirectX11);
+			__CASE(DIRECTX12, DirectX12);
+			__CASE(OPENGL, OpenGL);
+			__CASE(VULKAN, Vulkan);
+			#undef __CASE
 		}
 
-		return "NONE/UNKNOWN";
+		return "None/Unknown";
 	}
 
 	int GetCorrectDXGIFormat(int eCurrentFormat) {
